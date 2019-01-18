@@ -16,7 +16,7 @@ Current status: **beta**. `aiocouchdb` has all CouchDB API implements up to
 
 However, it may lack of some usability and stability bits, but
 work is in progress. Feel free to `send pull request`_ or `open issue`_ if
-you'd found something that should be fixed.
+you'd found something that should be fixed, however updates will be limited.
 
 **Features**
 
@@ -32,10 +32,10 @@ Requirements
 ============
 
 - Python 3.3+
-- `aiohttp`_ 2.2.5 only
+- `aiohttp`_ limited coverage, tested on 3.2.1, at least 3.0.0
 - `oauthlib`_ (optional)
 
-.. _aiohttp: https://github.com/KeepSafe/aiohttp
+.. _aiohttp: https://github.com/aio-libs/aiohttp
 .. _asyncio: https://docs.python.org/3/library/asyncio.html
 .. _oauthlib: https://github.com/idan/oauthlib
 
