@@ -42,52 +42,6 @@ __all__ = (
 )
 
 
-# FIXME: workaround of decompressing empty payload.
-# https://github.com/KeepSafe/aiohttp/pull/154
-#class HttpPayloadParser(aiohttp.HttpPayloadParser):
-#
-#    def __call__(self, out, buf):
-#        # payload params
-#        length = self.message.headers.get(CONTENT_LENGTH, self.length)
-#        if SEC_WEBSOCKET_KEY1 in self.message.headers:
-#            length = 8
-#
-#        # payload decompression wrapper
-#        if self.compression and self.message.compression:
-#            if self.response_with_body:  # the fix
-#                out = aiohttp.protocol.DeflateBuffer(out,
-#                                                     self.message.compression)
-#
-#        # payload parser
-#        if not self.response_with_body:
-#            # don't parse payload if it's not expected to be received
-#            pass
-#
-#        elif 'chunked' in self.message.headers.get(TRANSFER_ENCODING, ''):
-#            yield from self.parse_chunked_payload(out, buf)
-#
-#        elif length is not None:
-#            try:
-#                length = int(length)
-#            except ValueError:
-#                raise aiohttp.errors.InvalidHeader(CONTENT_LENGTH) from None
-#
-#            if length < 0:
-#                raise aiohttp.errors.InvalidHeader(CONTENT_LENGTH)
-#            elif length > 0:
-#                yield from self.parse_length_payload(out, buf, length)
-#        else:
-#            if self.readall and getattr(self.message, 'code', 0) != 204:
-#                yield from self.parse_eof_payload(out, buf)
-#            elif getattr(self.message, 'method', None) in ('PUT', 'POST'):
-#                aiohttp.log.internal_logger.warning(  # pragma: no cover
-#                    'Content-Length or Transfer-Encoding header is required')
-#
-#        out.feed_eof()
-#
-#aiohttp.HttpPayloadParser = HttpPayloadParser
-
-
 @asyncio.coroutine
 def request(method, url, *,
             allow_redirects=True,
@@ -165,7 +119,7 @@ def request(method, url, *,
 
             url = urllib.parse.urldefrag(r_url)[0]
             if url:
-                yield from asyncio.async(resp.release(), loop=loop)
+                yield from asyncio.ensure_future(resp.release(), loop=loop)
                 continue
 
         break
@@ -226,36 +180,6 @@ class HttpResponse(aiohttp.client.ClientResponse):
         """Raises an :exc:`HttpErrorException` if response status code is
         greater or equal `400`."""
         return maybe_raise_error(self)
-
-    #@asyncio.coroutine
-    #def read(self):
-    #    """Read response payload."""
-    #    if self._body is None:
-    #        data = bytearray()
-    #        try:
-    #            while not self._body.at_eof():
-    #                data.extend((yield from self._body.read()))
-    #        except:
-    #            self.close(True)
-    #            raise
-    #        else:
-    #            self.close()
-#
-    #        self._body = data
-#
-    #    return self._body
-
-    #@asyncio.coroutine
-    #def json(self, *, encoding='utf-8', loads=json.loads):
-    #    """Reads and decodes JSON response."""
-    #    if self._body is None:
-    #        yield from self.read()
-#
-    #    if not self._body.strip():
-    #        return None
-#
-    #    return loads(self._body.decode(encoding))
-
 
 class HttpSession(object):
     """HTTP client session which holds default :class:`Authentication Provider
